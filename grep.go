@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"strings"
+	"regexp"
 
 	"github.com/spf13/cobra"
 )
@@ -23,7 +23,12 @@ func (c *cmdGrep) New() *cobra.Command {
 			if len(args) == 2 {
 				fileName = args[1]
 			}
+
 			pattern := args[0]
+			re, err := regexp.Compile(pattern)
+			if err != nil {
+				return err
+			}
 
 			if fileName != "" {
 				f, err := os.Open(fileName)
@@ -37,7 +42,7 @@ func (c *cmdGrep) New() *cobra.Command {
 			scanner := bufio.NewScanner(reader)
 			for scanner.Scan() {
 				line := scanner.Text()
-				if strings.Contains(line, pattern) {
+				if re.MatchString(line) {
 					fmt.Println(line)
 				}
 			}
