@@ -36,5 +36,8 @@ func (r *CmdRoot) New() *cobra.Command {
 
 	cat := &cmdCat{CmdRoot: r}
 	cmd.AddCommand(cat.New())
+
+	grep := &cmdGrep{CmdRoot: r}
+	cmd.AddCommand(grep.New())
 	return cmd
 }
