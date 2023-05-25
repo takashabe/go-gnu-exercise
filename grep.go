@@ -12,7 +12,8 @@ import (
 type cmdGrep struct {
 	*CmdRoot
 
-	invert bool
+	invert     bool
+	ignoreCase bool
 }
 
 func (c *cmdGrep) New() *cobra.Command {
@@ -27,6 +28,9 @@ func (c *cmdGrep) New() *cobra.Command {
 			}
 
 			pattern := args[0]
+			if c.ignoreCase {
+				pattern = "(?i)" + pattern
+			}
 			re, err := regexp.Compile(pattern)
 			if err != nil {
 				return err
@@ -58,6 +62,7 @@ func (c *cmdGrep) New() *cobra.Command {
 	}
 
 	cmd.PersistentFlags().BoolVarP(&c.invert, "v", "v", false, "")
+	cmd.PersistentFlags().BoolVarP(&c.ignoreCase, "i", "i", false, "")
 
 	return cmd
 }
