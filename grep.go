@@ -11,6 +11,8 @@ import (
 
 type cmdGrep struct {
 	*CmdRoot
+
+	invert bool
 }
 
 func (c *cmdGrep) New() *cobra.Command {
@@ -42,7 +44,8 @@ func (c *cmdGrep) New() *cobra.Command {
 			scanner := bufio.NewScanner(reader)
 			for scanner.Scan() {
 				line := scanner.Text()
-				if re.MatchString(line) {
+				match := re.MatchString(line)
+				if (match && !c.invert) || (!match && c.invert) {
 					fmt.Println(line)
 				}
 			}
@@ -53,6 +56,8 @@ func (c *cmdGrep) New() *cobra.Command {
 			return nil
 		},
 	}
+
+	cmd.PersistentFlags().BoolVarP(&c.invert, "v", "v", false, "")
 
 	return cmd
 }
