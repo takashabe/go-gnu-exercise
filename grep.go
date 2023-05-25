@@ -6,6 +6,7 @@ import (
 	"os"
 	"regexp"
 
+	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 )
 
@@ -48,9 +49,21 @@ func (c *cmdGrep) New() *cobra.Command {
 			scanner := bufio.NewScanner(reader)
 			for scanner.Scan() {
 				line := scanner.Text()
-				match := re.MatchString(line)
-				if (match && !c.invert) || (!match && c.invert) {
-					fmt.Println(line)
+				idx := re.FindAllStringIndex(line, -1)
+
+				p := ""
+				if len(idx) > 0 {
+					lastIndex := 0
+					for _, i := range idx {
+						// 前回マッチしたところから今回マッチしたところまでを追加
+						p = fmt.Sprintf("%s%s", p, line[lastIndex:i[0]])
+						// マッチ文字列を色つける
+						p = fmt.Sprintf("%s%s", p, color.GreenString(line[i[0]:i[1]]))
+						lastIndex = i[1]
+					}
+					// 残った文字列を追加
+					p = fmt.Sprintf("%s%s", p, line[lastIndex:])
+					fmt.Println(p)
 				}
 			}
 			if err := scanner.Err(); err != nil {
